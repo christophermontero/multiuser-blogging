@@ -1,8 +1,8 @@
 const express = require('express');
-const morgan = requrie('morgan');
-const bodyParser = requrie('body-parser');
-const cookieParser = requrie('cookie-parser');
-const cors = requrie('cors');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 require('dotenv').config();
 
