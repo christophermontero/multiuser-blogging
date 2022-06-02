@@ -2,25 +2,35 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
 const cors = require('cors');
 
 require('dotenv').config();
 
+const blogRoutes = require('./routes/blog');
+
 const app = express();
 
-// Middlewares
+// db
+mongoose
+  .connect(process.env.DATABASE)
+  .then(() => console.log('DB connected'))
+  .catch((err) => console.log('DB Error => ', err));
+
+// cors
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(cookieParser());
-// CORS
-app.use(cors());
 
-// Routes
-app.get('/api', (req, res) => {
-  res.json({ time: Date.toString() });
-});
+// cors
+if (process.env.NODE_ENV === 'development') {
+  app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
+}
 
-// Port
+// routes
+app.use('/api', blogRoutes);
+
+// port
 const port = process.env.PORT || 8000;
 
 app.listen(port, () => {
