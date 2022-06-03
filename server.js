@@ -2,10 +2,10 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
 const cors = require('cors');
 
 require('dotenv').config();
+require('colors');
 
 const blogRoutes = require('./routes/blog');
 const authRoutes = require('./routes/auth');
@@ -13,10 +13,7 @@ const authRoutes = require('./routes/auth');
 const app = express();
 
 // db
-mongoose
-  .connect(process.env.DATABASE)
-  .then(() => console.log('DB connected'))
-  .catch((err) => console.log('DB Error => ', err));
+require('./config/db')();
 
 // cors
 app.use(morgan('dev'));
