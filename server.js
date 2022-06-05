@@ -3,12 +3,10 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const routes = require('./routes/v1');
 
 require('dotenv').config();
 require('colors');
-
-const blogRoutes = require('./routes/blog');
-const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -26,8 +24,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // routes
-app.use('/api', blogRoutes);
-app.use('/api', authRoutes);
+app.use('/api/v1', routes);
 
 // port
 const port = process.env.PORT || 8000;
