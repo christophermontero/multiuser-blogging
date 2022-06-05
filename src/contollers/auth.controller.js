@@ -6,7 +6,7 @@ const expressJwt = require('express-jwt');
 exports.signup = (req, res) => {
   User.findOne({ email: req.body.email }).exec((err, user) => {
     if (user) {
-      return res.status(400).json({ error: 'this email is already taken' });
+      return res.status(400).json({ error: 'This email is already taken' });
     }
     const { name, email, password } = req.body;
     let username = shortid.generate();

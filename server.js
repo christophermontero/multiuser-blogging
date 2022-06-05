@@ -3,7 +3,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const routes = require('./routes/v1');
+const routes = require('./src/routes/v1');
 
 require('dotenv').config();
 require('colors');
@@ -11,7 +11,7 @@ require('colors');
 const app = express();
 
 // db
-require('./config/db')();
+require('./src/config/db')();
 
 // cors
 app.use(morgan('dev'));
