@@ -19,5 +19,6 @@ router.post(
   runValidation,
   authController.signin
 );
+router.get('/signout', authController.requireSignin, authController.signout);
 
 module.exports = router;
