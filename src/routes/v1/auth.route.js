@@ -20,5 +20,6 @@ router.post(
   authController.signin
 );
 router.get('/signout', authController.requireSignin, authController.signout);
+//router.get('/secret', authController.requireSignin, authController.secret);
 
 module.exports = router;
