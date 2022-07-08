@@ -14,4 +14,14 @@ router.post(
   categoryController.create
 );
 
+router.get('/', categoryController.list);
+
+router.get('/:slug', categoryController.read);
+
+router.delete(
+  '/:slug',
+  requireSignin,
+  authController.adminMiddleware,
+  categoryController.remove
+);
 module.exports = router;
