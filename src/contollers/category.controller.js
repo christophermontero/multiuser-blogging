@@ -38,7 +38,7 @@ exports.remove = (req, res) => {
   const slug = req.params.slug.toLowerCase();
   Category.findOneAndRemove({ slug }).exec((err, category) => {
     if (!category) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: 'This category was not found'
       });
     }
