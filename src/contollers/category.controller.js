@@ -18,11 +18,6 @@ exports.create = (req, res) => {
 
 exports.list = (req, res) => {
   Category.find({}).exec((err, categories) => {
-    if (err) {
-      return res.status(400).json({
-        error: errorHandler(error)
-      });
-    }
     return res.json(categories);
   });
 };
@@ -30,9 +25,9 @@ exports.list = (req, res) => {
 exports.read = (req, res) => {
   const slug = req.params.slug.toLowerCase();
   Category.findOne({ slug }).exec((err, category) => {
-    if (err) {
-      return res.status(400).json({
-        error: errorHandler(error)
+    if (!category) {
+      return res.status(404).json({
+        error: 'This category was not found'
       });
     }
     return res.json(category);
@@ -42,9 +37,9 @@ exports.read = (req, res) => {
 exports.remove = (req, res) => {
   const slug = req.params.slug.toLowerCase();
   Category.findOneAndRemove({ slug }).exec((err, category) => {
-    if (err) {
+    if (!category) {
       return res.status(400).json({
-        error: errorHandler(error)
+        error: 'This category was not found'
       });
     }
     return res.json({ message: 'Category has been deleted!' });

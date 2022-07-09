@@ -16,11 +16,6 @@ exports.create = (req, res) => {
 
 exports.list = (req, res) => {
   Tag.find({}).exec((err, tags) => {
-    if (err) {
-      return res.status(400).json({
-        error: errorHandler(error)
-      });
-    }
     return res.json(tags);
   });
 };
@@ -28,9 +23,9 @@ exports.list = (req, res) => {
 exports.read = (req, res) => {
   const name = req.params.name.toLowerCase();
   Tag.findOne({ name }).exec((err, tag) => {
-    if (err) {
-      return res.status(400).json({
-        error: errorHandler(error)
+    if (!tag) {
+      return res.status(404).json({
+        error: 'This tag was not found'
       });
     }
     return res.json(tag);
@@ -40,9 +35,9 @@ exports.read = (req, res) => {
 exports.remove = (req, res) => {
   const name = req.params.name.toLowerCase();
   Tag.findOneAndRemove({ name }).exec((err, tag) => {
-    if (err) {
-      return res.status(400).json({
-        error: errorHandler(error)
+    if (!tag) {
+      return res.status(404).json({
+        error: 'This tag was not found'
       });
     }
     return res.json({ message: 'Tag has been deleted!' });
