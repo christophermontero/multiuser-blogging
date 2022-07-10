@@ -8,7 +8,7 @@ const {
 } = require('../../validators/category.validator');
 
 router.post(
-  '/create',
+  '/',
   categoryCreateValidator,
   runValidation,
   requireSignin,
