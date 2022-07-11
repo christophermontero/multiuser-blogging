@@ -6,7 +6,7 @@ const { runValidation } = require('../../validators');
 const { tagCreateValidator } = require('../../validators/tag.validator');
 
 router.post(
-  '/create',
+  '/',
   tagCreateValidator,
   runValidation,
   requireSignin,
