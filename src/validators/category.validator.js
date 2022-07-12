@@ -1,5 +1,5 @@
 const { check } = require('express-validator');
 
-exports.categoryCreateValidator = [
+exports.createCategoryValidator = [
   check('name').not().isEmpty().withMessage('Name is required')
 ];

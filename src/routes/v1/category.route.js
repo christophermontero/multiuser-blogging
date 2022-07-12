@@ -4,12 +4,12 @@ const { requireSignin } = require('../../contollers/auth.controller');
 const { authController, categoryController } = require('../../contollers');
 const { runValidation } = require('../../validators');
 const {
-  categoryCreateValidator
+  createCategoryValidator
 } = require('../../validators/category.validator');
 
 router.post(
   '/',
-  categoryCreateValidator,
+  createCategoryValidator,
   runValidation,
   requireSignin,
   authController.adminMiddleware,

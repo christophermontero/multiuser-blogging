@@ -12,12 +12,7 @@ const userSchema = new mongoose.Schema(
       index: true,
       lowercase: true
     },
-    name: {
-      type: String,
-      trim: true,
-      required: true,
-      maxLength: 32
-    },
+    name: { type: String, trim: true, required: true, maxLength: 32 },
     email: {
       type: String,
       trim: true,
@@ -25,30 +20,13 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true
     },
-    profile: {
-      type: String,
-      required: true
-    },
-    hashedPassword: {
-      type: String
-    },
-    salt: {
-      type: String
-    },
-    about: {
-      type: String
-    },
-    role: {
-      type: Number,
-      trim: true
-    },
-    photo: {
-      binData: Buffer
-    },
-    resetPasswordLink: {
-      type: String,
-      default: ''
-    }
+    profile: { type: String, required: true },
+    hashedPassword: { type: String },
+    salt: String,
+    about: String,
+    role: { type: Number, trim: true },
+    photo: { binData: Buffer, contentType: String },
+    resetPasswordLink: { type: String, default: '' }
   },
   { timestamp: true }
 );

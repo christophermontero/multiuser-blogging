@@ -30,11 +30,11 @@
     "formidable": "^2.0.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
-    "mongoose": "^6.3.5",
+    "mongoose": "^6.4.3",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.16",
     "shortid": "^2.2.16",
     "slugify": "^1.6.5",
-    "string-strip-html": "^9.1.12"
+    "string-strip-html": "^4.4.1"
   }
 }
