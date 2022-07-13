@@ -4,6 +4,7 @@ const { default: slugify } = require('slugify');
 const stripHtml = require('string-strip-html');
 const fs = require('fs');
 const { errorHandler } = require('../helpers/dbErrorHandler');
+const { smartTrim } = require('../helpers/blogHelpers');
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -18,10 +19,10 @@ exports.create = (req, res) => {
       return res.status(400).json({
         error: 'Title is required'
       });
-    //if (!body || body.length < 200)
-    //return res.status(400).json({
-    //error: 'Body is too short'
-    //});
+    if (!body || body.length < 200)
+      return res.status(400).json({
+        error: 'Body is too short'
+      });
     if (!categories || categories.length === 0)
       return res.status(400).json({
         error: 'At least one category is required'
@@ -32,6 +33,7 @@ exports.create = (req, res) => {
       });
     const photoData = fs.readFileSync(files.photo.filepath);
     const photoContentType = files.photo.mimetype;
+    const excerptBlog = smartTrim(body, 320, ' ', '...');
     let arrayOfCategories = categories && categories.split(',');
     let arrayOfTags = tags && tags.split(',');
     if (files.photo && files.photo.size > 10000000)
@@ -41,6 +43,7 @@ exports.create = (req, res) => {
     const blog = new Blog({
       title,
       body,
+      excerpt: excerptBlog,
       slug: slugify(title).toLowerCase(),
       metaTitle: `${title} | ${process.env.APP_NAME}`,
       metaDesc: stripHtml(body.substring(0, 160)),
