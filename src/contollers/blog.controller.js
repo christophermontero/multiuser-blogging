@@ -10,12 +10,10 @@ exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
   form.parse(req, (err, fields, files) => {
-    console.log('Error', err);
     if (err)
       return res.status(400).json({
         error: 'Image could not upload'
       });
-    console.log('Fields', fields);
     const { title, body, categories, tags } = fields;
     const fieldValidationMsg = fieldValidation(
       title,
@@ -26,13 +24,12 @@ exports.create = (req, res) => {
     );
 
     if (fieldValidationMsg) {
-      console.log('Field validation', fieldValidationMsg);
       return res.status(400).json({
         error: fieldValidationMsg
       });
     }
 
-    const photoData = fs.readFileSync(files.photo.path);
+    const photoData = fs.readFileSync(files.photo.filepath);
     const photoContentType = files.photo.mimetype;
     const excerptBlog = smartTrim(body, 320, ' ', '...');
     let arrayOfCategories = categories && categories.split(',');
