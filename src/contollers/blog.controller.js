@@ -3,7 +3,6 @@ const formidable = require('formidable');
 const { default: slugify } = require('slugify');
 const stripHtml = require('string-strip-html');
 const fs = require('fs');
-const { errorHandler } = require('../helpers/dbErrorHandler');
 const { smartTrim, fieldValidation } = require('../helpers/blogHelpers');
 
 exports.create = (req, res) => {
@@ -81,3 +80,29 @@ exports.create = (req, res) => {
     });
   });
 };
+
+exports.listAllCategoriesTags = (req, res) => {};
+
+exports.list = (req, res) => {
+  Blog.find({})
+    .populate('categories', '_id name slug')
+    .populate('tags', '_id name')
+    .populate('postedBy', '_id name username')
+    .select(
+      '_id title slug excerpt categories tags postedBy createdAt updatedAt'
+    )
+    .exec((err, blogs) => {
+      if (err)
+        return res.json({
+          error: err
+        });
+
+      return res.json(blogs);
+    });
+};
+
+exports.read = (req, res) => {};
+
+exports.update = (req, res) => {};
+
+exports.remove = (req, res) => {};
