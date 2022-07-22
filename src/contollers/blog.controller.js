@@ -4,42 +4,40 @@ const { default: slugify } = require('slugify');
 const stripHtml = require('string-strip-html');
 const fs = require('fs');
 const { errorHandler } = require('../helpers/dbErrorHandler');
-const { smartTrim } = require('../helpers/blogHelpers');
+const { smartTrim, fieldValidation } = require('../helpers/blogHelpers');
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
   form.parse(req, (err, fields, files) => {
+    console.log('Error', err);
     if (err)
       return res.status(400).json({
         error: 'Image could not upload'
       });
+    console.log('Fields', fields);
     const { title, body, categories, tags } = fields;
-    if (!title || !title.length)
+    const fieldValidationMsg = fieldValidation(
+      title,
+      body,
+      categories,
+      tags,
+      files
+    );
+
+    if (fieldValidationMsg) {
+      console.log('Field validation', fieldValidationMsg);
       return res.status(400).json({
-        error: 'Title is required'
+        error: fieldValidationMsg
       });
-    if (!body || body.length < 200)
-      return res.status(400).json({
-        error: 'Body is too short'
-      });
-    if (!categories || categories.length === 0)
-      return res.status(400).json({
-        error: 'At least one category is required'
-      });
-    if (!tags || tags.length === 0)
-      return res.status(400).json({
-        error: 'At least one tag is required'
-      });
-    const photoData = fs.readFileSync(files.photo.filepath);
+    }
+
+    const photoData = fs.readFileSync(files.photo.path);
     const photoContentType = files.photo.mimetype;
     const excerptBlog = smartTrim(body, 320, ' ', '...');
     let arrayOfCategories = categories && categories.split(',');
     let arrayOfTags = tags && tags.split(',');
-    if (files.photo && files.photo.size > 10000000)
-      return res.status(400).json({
-        error: 'Image should be less than 1Mb'
-      });
+
     const blog = new Blog({
       title,
       body,
@@ -50,10 +48,11 @@ exports.create = (req, res) => {
       postedBy: req.profile._id,
       photo: { binData: photoData, contentType: photoContentType }
     });
+
     blog.save((err, blog) => {
       if (err)
         return res.status(400).json({
-          error: errorHandler(err)
+          error: err
         });
       Blog.findByIdAndUpdate(
         blog._id,
@@ -64,7 +63,7 @@ exports.create = (req, res) => {
       ).exec((err, blog) => {
         if (err) {
           return res.status(400).json({
-            error: errorHandler(err)
+            error: err
           });
         } else {
           Blog.findByIdAndUpdate(
@@ -74,7 +73,7 @@ exports.create = (req, res) => {
           ).exec((err, blog) => {
             if (err) {
               return res.status(400).json({
-                error: errorHandler(err)
+                error: err
               });
             } else {
               return res.json(blog);
