@@ -1,5 +1,5 @@
-const Tag = require('../models/Tag');
-const { errorHandler } = require('../helpers/dbErrorHandler');
+const Tag = require("../models/Tag");
+const { errorHandler } = require("../helpers/dbErrorHandler");
 
 exports.create = (req, res) => {
   const { name } = req.body;
@@ -7,7 +7,7 @@ exports.create = (req, res) => {
   tag.save((err, tag) => {
     if (err) {
       return res.status(400).json({
-        error: errorHandler(err)
+        error: errorHandler(err),
       });
     }
     return res.json(tag);
@@ -21,11 +21,11 @@ exports.list = (req, res) => {
 };
 
 exports.read = (req, res) => {
-  const name = req.params.name.toLowerCase();
+  const name = req.params.name;
   Tag.findOne({ name }).exec((err, tag) => {
     if (!tag) {
       return res.status(404).json({
-        error: 'This tag was not found'
+        error: "This tag was not found",
       });
     }
     return res.json(tag);
@@ -33,13 +33,13 @@ exports.read = (req, res) => {
 };
 
 exports.remove = (req, res) => {
-  const name = req.params.name.toLowerCase();
+  const name = req.params.name;
   Tag.findOneAndRemove({ name }).exec((err, tag) => {
     if (!tag) {
       return res.status(404).json({
-        error: 'This tag was not found'
+        error: "This tag was not found",
       });
     }
-    return res.json({ message: 'Tag has been deleted!' });
+    return res.json({ message: "Tag has been deleted!" });
   });
 };

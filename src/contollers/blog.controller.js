@@ -6,6 +6,8 @@ const fs = require("fs");
 const { smartTrim, fieldValidation } = require("../helpers/blogHelpers");
 const Category = require("../models/Category");
 const Tag = require("../models/Tag");
+const { errorHandler } = require("../helpers/dbErrorHandler");
+const _ = require("lodash");
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -49,9 +51,10 @@ exports.create = (req, res) => {
 
     blog.save((err, blog) => {
       if (err)
-        return res.status(400).json({
-          error: err,
+        return res.status(500).json({
+          error: errorHandler(err),
         });
+
       Blog.findByIdAndUpdate(
         blog._id,
         {
@@ -60,8 +63,8 @@ exports.create = (req, res) => {
         { new: true }
       ).exec((err, blog) => {
         if (err) {
-          return res.status(400).json({
-            error: err,
+          return res.status(500).json({
+            error: errorHandler(err),
           });
         } else {
           Blog.findByIdAndUpdate(
@@ -70,8 +73,8 @@ exports.create = (req, res) => {
             { new: true }
           ).exec((err, blog) => {
             if (err) {
-              return res.status(400).json({
-                error: err,
+              return res.status(500).json({
+                error: errorHandler(err),
               });
             } else {
               return res.json(blog);
@@ -103,8 +106,8 @@ exports.listAllCategoriesTags = (req, res) => {
     )
     .exec((err, b) => {
       if (err)
-        return res.json({
-          error: err,
+        return res.status(500).json({
+          error: errorHandler(err),
         });
 
       blogs = b;
@@ -112,8 +115,8 @@ exports.listAllCategoriesTags = (req, res) => {
       // Get all categories
       Category.find({}).exec((err, c) => {
         if (err)
-          return res.json({
-            error: err,
+          return res.status(500).json({
+            error: errorHandler(err),
           });
 
         categories = c;
@@ -121,8 +124,8 @@ exports.listAllCategoriesTags = (req, res) => {
         // Get all tags
         Tag.find({}).exec((err, t) => {
           if (err)
-            return res.json({
-              error: err,
+            return res.status(500).json({
+              error: errorHandler(err),
             });
 
           tags = t;
@@ -144,16 +147,117 @@ exports.list = (req, res) => {
     )
     .exec((err, blogs) => {
       if (err)
-        return res.json({
-          error: err,
+        return res.status(500).json({
+          error: errorHandler(err),
         });
 
       return res.json(blogs);
     });
 };
 
-exports.read = (req, res) => {};
+exports.read = (req, res) => {
+  const slug = req.params.slug.toLowerCase();
 
-exports.update = (req, res) => {};
+  Blog.findOne({ slug })
+    .populate("categories", "_id name slug")
+    .populate("tags", "_id name")
+    .populate("postedBy", "_id name username")
+    .select(
+      "_id title body slug metaTitle metaDesc categories tags postedBy createdAt updatedAt"
+    )
+    .exec((err, blog) => {
+      if (err)
+        return res.status(500).json({
+          error: errorHandler(err),
+        });
 
-exports.remove = (req, res) => {};
+      if (!blog) {
+        return res.status(404).json({
+          error: "Blog not found",
+        });
+      }
+
+      return res.json(blog);
+    });
+};
+
+exports.update = (req, res) => {
+  const slug = req.params.slug.toLowerCase();
+
+  Blog.findOne({ slug }).exec((err, oldBlog) => {
+    if (err)
+      return res.status(500).json({
+        error: errorHandler(err),
+      });
+
+    let form = new formidable.IncomingForm();
+    form.keepExtensions = true;
+
+    form.parse(req, (err, fields, files) => {
+      if (err)
+        return res.status(400).json({
+          error: "Image could not upload",
+        });
+
+      let slugBeforeMerge = oldBlog.slug;
+
+      oldBlog = _.merge(oldBlog, fields);
+      oldBlog.slug = slugBeforeMerge;
+
+      const { body, categories, tags } = fields;
+
+      if (body) {
+        oldBlog.excerpt = smartTrim(body, 320, " ", "...");
+        oldBlog.metaDesc = stripHtml(body.substring(0, 160));
+      }
+
+      if (categories) {
+        oldBlog.categories = categories.split(",");
+      }
+
+      if (tags) {
+        oldBlog.tags = tags.split(",");
+      }
+
+      if (files.photo && files.photo.size > 10000000) {
+        return res.status(400).json({
+          error: "Image should be less than 1Mb",
+        });
+      }
+
+      oldBlog.photo = {
+        binData: fs.readFileSync(files.photo.filepath),
+        contentType: files.photo.mimetype,
+      };
+
+      oldBlog.save((err, blog) => {
+        if (err)
+          return res.status(500).json({
+            error: errorHandler(err),
+          });
+        return res.json(blog);
+      });
+    });
+  });
+};
+
+exports.remove = (req, res) => {
+  const slug = req.params.slug.toLowerCase();
+
+  Blog.findOneAndRemove({ slug }).exec((err, blog) => {
+    if (err)
+      return res.status(500).json({
+        error: errorHandler(err),
+      });
+
+    if (!blog) {
+      return res.status(404).json({
+        error: "Blog not found",
+      });
+    }
+
+    return res.json({
+      message: "Blog deleted successfully",
+    });
+  });
+};
