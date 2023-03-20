@@ -1,24 +1,25 @@
-const express = require('express');
-const { authController, blogController } = require('../../contollers');
+const express = require("express");
+const { authController, blogController } = require("../../contollers");
 const router = express.Router();
 
-router.post('/categories-tags', blogController.listAllCategoriesTags);
+router.post("/categories-tags", blogController.listAllCategoriesTags);
 router.post(
-  '/',
+  "/",
   authController.requireSignin,
   authController.adminMiddleware,
   blogController.create
 );
-router.get('/', blogController.list);
-router.get('/:slug', blogController.read);
+router.get("/", blogController.list);
+router.get("/:slug", blogController.read);
+router.get("/photo/:slug", blogController.photo);
 router.put(
-  '/:slug',
+  "/:slug",
   authController.requireSignin,
   authController.adminMiddleware,
   blogController.update
 );
 router.delete(
-  '/:slug',
+  "/:slug",
   authController.requireSignin,
   authController.adminMiddleware,
   blogController.remove
