@@ -1,13 +1,13 @@
-const Blog = require("../models/Blog");
-const formidable = require("formidable");
-const { default: slugify } = require("slugify");
-const stripHtml = require("string-strip-html");
-const fs = require("fs");
-const { smartTrim, fieldValidation } = require("../helpers/blogHelpers");
-const Category = require("../models/Category");
-const Tag = require("../models/Tag");
-const { errorHandler } = require("../helpers/dbErrorHandler");
-const _ = require("lodash");
+const Blog = require('../models/Blog');
+const formidable = require('formidable');
+const { default: slugify } = require('slugify');
+const stripHtml = require('string-strip-html');
+const fs = require('fs');
+const { smartTrim, fieldValidation } = require('../helpers/blogHelpers');
+const Category = require('../models/Category');
+const Tag = require('../models/Tag');
+const { errorHandler } = require('../helpers/dbErrorHandler');
+const _ = require('lodash');
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -15,7 +15,7 @@ exports.create = (req, res) => {
   form.parse(req, (err, fields, files) => {
     if (err)
       return res.status(400).json({
-        error: "Image could not upload",
+        error: 'Image could not upload'
       });
     const { title, body, categories, tags } = fields;
     const fieldValidationMsg = fieldValidation(
@@ -28,15 +28,15 @@ exports.create = (req, res) => {
 
     if (fieldValidationMsg) {
       return res.status(400).json({
-        error: fieldValidationMsg,
+        error: fieldValidationMsg
       });
     }
 
     const photoData = fs.readFileSync(files.photo.filepath);
     const photoContentType = files.photo.mimetype;
-    const excerptBlog = smartTrim(body, 320, " ", "...");
-    let arrayOfCategories = categories && categories.split(",");
-    let arrayOfTags = tags && tags.split(",");
+    const excerptBlog = smartTrim(body, 320, ' ', '...');
+    let arrayOfCategories = categories && categories.split(',');
+    let arrayOfTags = tags && tags.split(',');
 
     const blog = new Blog({
       title,
@@ -46,25 +46,25 @@ exports.create = (req, res) => {
       metaTitle: `${title} | ${process.env.APP_NAME}`,
       metaDesc: stripHtml(body.substring(0, 160)),
       postedBy: req.profile._id,
-      photo: { binData: photoData, contentType: photoContentType },
+      photo: { binData: photoData, contentType: photoContentType }
     });
 
     blog.save((err, blog) => {
       if (err)
         return res.status(500).json({
-          error: errorHandler(err),
+          error: errorHandler(err)
         });
 
       Blog.findByIdAndUpdate(
         blog._id,
         {
-          $push: { categories: arrayOfCategories },
+          $push: { categories: arrayOfCategories }
         },
         { new: true }
       ).exec((err, blog) => {
         if (err) {
           return res.status(500).json({
-            error: errorHandler(err),
+            error: errorHandler(err)
           });
         } else {
           Blog.findByIdAndUpdate(
@@ -74,7 +74,7 @@ exports.create = (req, res) => {
           ).exec((err, blog) => {
             if (err) {
               return res.status(500).json({
-                error: errorHandler(err),
+                error: errorHandler(err)
               });
             } else {
               return res.json(blog);
@@ -95,19 +95,19 @@ exports.listAllCategoriesTags = (req, res) => {
 
   // Get all blogs
   Blog.find({})
-    .populate("categories", "_id name slug")
-    .populate("tags", "_id name")
-    .populate("postedBy", "_id name username")
+    .populate('categories', '_id name slug')
+    .populate('tags', '_id name')
+    .populate('postedBy', '_id name username')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .select(
-      "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+      '_id title slug excerpt categories tags postedBy createdAt updatedAt'
     )
     .exec((err, b) => {
       if (err)
         return res.status(500).json({
-          error: errorHandler(err),
+          error: errorHandler(err)
         });
 
       blogs = b;
@@ -116,7 +116,7 @@ exports.listAllCategoriesTags = (req, res) => {
       Category.find({}).exec((err, c) => {
         if (err)
           return res.status(500).json({
-            error: errorHandler(err),
+            error: errorHandler(err)
           });
 
         categories = c;
@@ -125,7 +125,7 @@ exports.listAllCategoriesTags = (req, res) => {
         Tag.find({}).exec((err, t) => {
           if (err)
             return res.status(500).json({
-              error: errorHandler(err),
+              error: errorHandler(err)
             });
 
           tags = t;
@@ -139,16 +139,16 @@ exports.listAllCategoriesTags = (req, res) => {
 
 exports.list = (req, res) => {
   Blog.find({})
-    .populate("categories", "_id name slug")
-    .populate("tags", "_id name")
-    .populate("postedBy", "_id name username")
+    .populate('categories', '_id name slug')
+    .populate('tags', '_id name')
+    .populate('postedBy', '_id name username')
     .select(
-      "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+      '_id title slug excerpt categories tags postedBy createdAt updatedAt'
     )
     .exec((err, blogs) => {
       if (err)
         return res.status(500).json({
-          error: errorHandler(err),
+          error: errorHandler(err)
         });
 
       return res.json(blogs);
@@ -159,21 +159,21 @@ exports.read = (req, res) => {
   const slug = req.params.slug.toLowerCase();
 
   Blog.findOne({ slug })
-    .populate("categories", "_id name slug")
-    .populate("tags", "_id name")
-    .populate("postedBy", "_id name username")
+    .populate('categories', '_id name slug')
+    .populate('tags', '_id name')
+    .populate('postedBy', '_id name username')
     .select(
-      "_id title body slug metaTitle metaDesc categories tags postedBy createdAt updatedAt"
+      '_id title body slug metaTitle metaDesc categories tags postedBy createdAt updatedAt'
     )
     .exec((err, blog) => {
       if (err)
         return res.status(500).json({
-          error: errorHandler(err),
+          error: errorHandler(err)
         });
 
       if (!blog) {
         return res.status(404).json({
-          error: "Blog not found",
+          error: 'Blog not found'
         });
       }
 
@@ -187,7 +187,7 @@ exports.update = (req, res) => {
   Blog.findOne({ slug }).exec((err, oldBlog) => {
     if (err)
       return res.status(500).json({
-        error: errorHandler(err),
+        error: errorHandler(err)
       });
 
     let form = new formidable.IncomingForm();
@@ -196,7 +196,7 @@ exports.update = (req, res) => {
     form.parse(req, (err, fields, files) => {
       if (err)
         return res.status(400).json({
-          error: "Image could not upload",
+          error: 'Image could not upload'
         });
 
       let slugBeforeMerge = oldBlog.slug;
@@ -207,33 +207,33 @@ exports.update = (req, res) => {
       const { body, categories, tags } = fields;
 
       if (body) {
-        oldBlog.excerpt = smartTrim(body, 320, " ", "...");
+        oldBlog.excerpt = smartTrim(body, 320, ' ', '...');
         oldBlog.metaDesc = stripHtml(body.substring(0, 160));
       }
 
       if (categories) {
-        oldBlog.categories = categories.split(",");
+        oldBlog.categories = categories.split(',');
       }
 
       if (tags) {
-        oldBlog.tags = tags.split(",");
+        oldBlog.tags = tags.split(',');
       }
 
       if (files.photo && files.photo.size > 10000000) {
         return res.status(400).json({
-          error: "Image should be less than 1Mb",
+          error: 'Image should be less than 1Mb'
         });
       }
 
       oldBlog.photo = {
         binData: fs.readFileSync(files.photo.filepath),
-        contentType: files.photo.mimetype,
+        contentType: files.photo.mimetype
       };
 
       oldBlog.save((err, blog) => {
         if (err)
           return res.status(500).json({
-            error: errorHandler(err),
+            error: errorHandler(err)
           });
         return res.json(blog);
       });
@@ -247,33 +247,40 @@ exports.remove = (req, res) => {
   Blog.findOneAndRemove({ slug }).exec((err, blog) => {
     if (err)
       return res.status(500).json({
-        error: errorHandler(err),
+        error: errorHandler(err)
       });
 
     if (!blog) {
       return res.status(404).json({
-        error: "Blog not found",
+        error: 'Blog not found'
       });
     }
 
     return res.json({
-      message: "Blog deleted successfully",
+      message: 'Blog deleted successfully'
     });
   });
 };
 
 exports.photo = (req, res) => {
   const slug = req.params.slug.toLowerCase();
+
   Blog.findOne({ slug })
-    .select("photo")
+    .select('photo')
     .exec((err, blog) => {
-      if (err || !blog) {
-        return res.status(400).json({
-          error: errorHandler(err),
+      if (err) {
+        return res.status(500).json({
+          error: errorHandler(err)
         });
       }
 
-      res.set("Content-Type", blog.photo.contentType);
+      if (!blog) {
+        return res.status(404).json({
+          error: 'Blog not found'
+        });
+      }
+
+      res.set('Content-Type', blog.photo.contentType);
       return res.send(blog.photo.binData);
     });
 };
