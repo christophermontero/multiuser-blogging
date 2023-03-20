@@ -1,9 +1,11 @@
-const Blog = require('../models/Blog');
-const formidable = require('formidable');
-const { default: slugify } = require('slugify');
-const stripHtml = require('string-strip-html');
-const fs = require('fs');
-const { smartTrim, fieldValidation } = require('../helpers/blogHelpers');
+const Blog = require("../models/Blog");
+const formidable = require("formidable");
+const { default: slugify } = require("slugify");
+const stripHtml = require("string-strip-html");
+const fs = require("fs");
+const { smartTrim, fieldValidation } = require("../helpers/blogHelpers");
+const Category = require("../models/Category");
+const Tag = require("../models/Tag");
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -11,7 +13,7 @@ exports.create = (req, res) => {
   form.parse(req, (err, fields, files) => {
     if (err)
       return res.status(400).json({
-        error: 'Image could not upload'
+        error: "Image could not upload",
       });
     const { title, body, categories, tags } = fields;
     const fieldValidationMsg = fieldValidation(
@@ -24,15 +26,15 @@ exports.create = (req, res) => {
 
     if (fieldValidationMsg) {
       return res.status(400).json({
-        error: fieldValidationMsg
+        error: fieldValidationMsg,
       });
     }
 
     const photoData = fs.readFileSync(files.photo.filepath);
     const photoContentType = files.photo.mimetype;
-    const excerptBlog = smartTrim(body, 320, ' ', '...');
-    let arrayOfCategories = categories && categories.split(',');
-    let arrayOfTags = tags && tags.split(',');
+    const excerptBlog = smartTrim(body, 320, " ", "...");
+    let arrayOfCategories = categories && categories.split(",");
+    let arrayOfTags = tags && tags.split(",");
 
     const blog = new Blog({
       title,
@@ -42,24 +44,24 @@ exports.create = (req, res) => {
       metaTitle: `${title} | ${process.env.APP_NAME}`,
       metaDesc: stripHtml(body.substring(0, 160)),
       postedBy: req.profile._id,
-      photo: { binData: photoData, contentType: photoContentType }
+      photo: { binData: photoData, contentType: photoContentType },
     });
 
     blog.save((err, blog) => {
       if (err)
         return res.status(400).json({
-          error: err
+          error: err,
         });
       Blog.findByIdAndUpdate(
         blog._id,
         {
-          $push: { categories: arrayOfCategories }
+          $push: { categories: arrayOfCategories },
         },
         { new: true }
       ).exec((err, blog) => {
         if (err) {
           return res.status(400).json({
-            error: err
+            error: err,
           });
         } else {
           Blog.findByIdAndUpdate(
@@ -69,7 +71,7 @@ exports.create = (req, res) => {
           ).exec((err, blog) => {
             if (err) {
               return res.status(400).json({
-                error: err
+                error: err,
               });
             } else {
               return res.json(blog);
@@ -81,20 +83,69 @@ exports.create = (req, res) => {
   });
 };
 
-exports.listAllCategoriesTags = (req, res) => {};
+exports.listAllCategoriesTags = (req, res) => {
+  let limit = req.body.limit ? parseInt(req.body.limit) : 10,
+    skip = req.body.skip ? parseInt(req.body.skip) : 0,
+    blogs,
+    categories,
+    tags;
+
+  // Get all blogs
+  Blog.find({})
+    .populate("categories", "_id name slug")
+    .populate("tags", "_id name")
+    .populate("postedBy", "_id name username")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .select(
+      "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+    )
+    .exec((err, b) => {
+      if (err)
+        return res.json({
+          error: err,
+        });
+
+      blogs = b;
+
+      // Get all categories
+      Category.find({}).exec((err, c) => {
+        if (err)
+          return res.json({
+            error: err,
+          });
+
+        categories = c;
+
+        // Get all tags
+        Tag.find({}).exec((err, t) => {
+          if (err)
+            return res.json({
+              error: err,
+            });
+
+          tags = t;
+
+          // Return all categories, tags and blogs
+          return res.json({ blogs, categories, tags, size: blogs.length });
+        });
+      });
+    });
+};
 
 exports.list = (req, res) => {
   Blog.find({})
-    .populate('categories', '_id name slug')
-    .populate('tags', '_id name')
-    .populate('postedBy', '_id name username')
+    .populate("categories", "_id name slug")
+    .populate("tags", "_id name")
+    .populate("postedBy", "_id name username")
     .select(
-      '_id title slug excerpt categories tags postedBy createdAt updatedAt'
+      "_id title slug excerpt categories tags postedBy createdAt updatedAt"
     )
     .exec((err, blogs) => {
       if (err)
         return res.json({
-          error: err
+          error: err,
         });
 
       return res.json(blogs);
