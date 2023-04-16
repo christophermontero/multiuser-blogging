@@ -20,7 +20,7 @@ const blogSchema = new mongoose.Schema(
     tags: [{ type: ObjectId, ref: 'Tag', required: true }],
     postedBy: { type: ObjectId, ref: 'User' }
   },
-  { timestamp: true }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model('Blog', blogSchema);
