@@ -24,5 +24,6 @@ router.delete(
   authController.adminMiddleware,
   blogController.remove
 );
+router.post('/related', blogController.listRelated);
 
 module.exports = router;
