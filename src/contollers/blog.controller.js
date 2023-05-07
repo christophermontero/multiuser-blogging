@@ -112,26 +112,34 @@ exports.listAllCategoriesTags = (req, res) => {
 
       blogs = b;
 
-      // Get all categories
-      Category.find({}).exec((err, c) => {
+      // Get the total count of blogs
+      Blog.countDocuments().exec((err, count) => {
         if (err)
           return res.status(500).json({
             error: errorHandler(err)
           });
 
-        categories = c;
-
-        // Get all tags
-        Tag.find({}).exec((err, t) => {
+        // Get all categories
+        Category.find({}).exec((err, c) => {
           if (err)
             return res.status(500).json({
               error: errorHandler(err)
             });
 
-          tags = t;
+          categories = c;
 
-          // Return all categories, tags and blogs
-          return res.json({ blogs, categories, tags, size: blogs.length });
+          // Get all tags
+          Tag.find({}).exec((err, t) => {
+            if (err)
+              return res.status(500).json({
+                error: errorHandler(err)
+              });
+
+            tags = t;
+
+            // Return all categories, tags, blogs, and the total count of blogs
+            return res.json({ blogs, categories, tags, size: count });
+          });
         });
       });
     });
