@@ -9,6 +9,11 @@ const tagSchema = new mongoose.Schema(
       trim: true,
       required: true,
       maxLength: 32
+    },
+    slug: {
+      type: String,
+      unique: true,
+      index: true
     }
   },
   { timestamp: true }

@@ -1,10 +1,12 @@
 const Tag = require('../models/Tag');
 const Blog = require('../models/Blog');
 const { errorHandler } = require('../helpers/dbErrorHandler');
+const { default: slugify } = require('slugify');
 
 exports.create = (req, res) => {
   const { name } = req.body;
-  let tag = new Tag({ name });
+  const slug = slugify(name).toLowerCase();
+  let tag = new Tag({ name, slug });
   tag.save((err, tag) => {
     if (err) {
       return res.status(400).json({
@@ -22,8 +24,8 @@ exports.list = (req, res) => {
 };
 
 exports.read = (req, res) => {
-  const name = req.params.name;
-  Tag.findOne({ name }).exec((err, tag) => {
+  const slug = req.params.slug.toLowerCase();
+  Tag.findOne({ slug }).exec((err, tag) => {
     if (!tag) {
       return res.status(404).json({
         error: 'This tag was not found'
@@ -48,8 +50,8 @@ exports.read = (req, res) => {
 };
 
 exports.remove = (req, res) => {
-  const name = req.params.name;
-  Tag.findOneAndRemove({ name }).exec((err, tag) => {
+  const slug = req.params.slug.toLowerCase();
+  Tag.findOneAndRemove({ slug }).exec((err, tag) => {
     if (!tag) {
       return res.status(404).json({
         error: 'This tag was not found'

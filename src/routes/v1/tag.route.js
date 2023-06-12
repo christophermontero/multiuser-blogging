@@ -14,9 +14,9 @@ router.post(
   tagController.create
 );
 router.get('/', tagController.list);
-router.get('/:name', tagController.read);
+router.get('/:slug', tagController.read);
 router.delete(
-  '/:name',
+  '/:slug',
   requireSignin,
   authController.adminMiddleware,
   tagController.remove

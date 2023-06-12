@@ -5,7 +5,7 @@ const { errorHandler } = require('../helpers/dbErrorHandler');
 
 exports.create = (req, res) => {
   const { name } = req.body;
-  let slug = slugify(name).toLowerCase();
+  const slug = slugify(name).toLowerCase();
   let category = new Category({ name, slug });
   category.save((err, category) => {
     if (err) {
