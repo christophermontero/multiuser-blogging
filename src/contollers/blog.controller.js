@@ -96,7 +96,7 @@ exports.listAllCategoriesTags = (req, res) => {
   // Get all blogs
   Blog.find({})
     .populate('categories', '_id name slug')
-    .populate('tags', '_id name')
+    .populate('tags', '_id name slug')
     .populate('postedBy', '_id name username')
     .sort({ createdAt: -1 })
     .skip(skip)
