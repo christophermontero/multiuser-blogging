@@ -1,4 +1,5 @@
 const Tag = require('../models/Tag');
+const Blog = require('../models/Blog');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 
 exports.create = (req, res) => {
