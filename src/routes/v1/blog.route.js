@@ -18,6 +18,7 @@ router.put(
   authController.adminMiddleware,
   blogController.update
 );
+router.get('/search', blogController.listSearch);
 router.delete(
   '/:slug',
   authController.requireSignin,
