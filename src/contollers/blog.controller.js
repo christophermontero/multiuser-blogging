@@ -325,13 +325,15 @@ exports.listSearch = (req, res) => {
       },
       (err, blogs) => {
         if (err) {
-          return res.status(404).json({
+          return res.status(400).json({
             error: errorHandler(err)
           });
         }
+
+        return res.json(blogs);
       }
     ).select('-photo -body');
-
-    return res.json(blogs);
+  } else {
+    return res.json([]);
   }
 };
