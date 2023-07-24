@@ -168,7 +168,7 @@ exports.read = (req, res) => {
 
   Blog.findOne({ slug })
     .populate('categories', '_id name slug')
-    .populate('tags', '_id name')
+    .populate('tags', '_id name slug')
     .populate('postedBy', '_id name username')
     .select(
       '_id title body slug metaTitle metaDesc categories tags postedBy createdAt updatedAt'
