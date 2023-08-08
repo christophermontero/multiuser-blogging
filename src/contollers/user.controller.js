@@ -77,7 +77,7 @@ exports.updateUser = (req, res) => {
           error: errorHandler(err)
         });
       }
-      const { hashedPassword, salt, photo, ...safeUser } = user;
+      const { hashedPassword, salt, photo, ...safeUser } = result._doc;
 
       return res.json(safeUser);
     });
