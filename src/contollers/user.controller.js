@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Blog = require('../models/Blog');
+const formidable = require('formidable');
+const fs = require('fs');
 
 exports.read = (req, res) => {
   req.profile.hashedPassword = undefined;
@@ -43,5 +45,57 @@ exports.publicProfile = (req, res) => {
           blogs
         });
       });
+  });
+};
+
+exports.updateUser = (req, res) => {
+  let formData = new formidable.IncomingForm();
+  formData.parse(req, (err, fields, files) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Photo could not be uploaded'
+      });
+    }
+    let user = req.profile;
+    user = _.extend(user, fields);
+
+    if (files.photo) {
+      if (files.photo.size > 10000000) {
+        return res.status(400).json({
+          error: 'Image should be less than 1mb in size'
+        });
+      }
+      user.photo.data = fs.readFileSync(files.photo.path);
+      user.photo.contentType = files.photo.type;
+
+      user.save((err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: errorHandler(err)
+          });
+        }
+        const { hashedPassword, salt, photo, ...safeUser } = user;
+
+        return res.json(safeUser);
+      });
+    }
+  });
+};
+
+exports.userProfilePicture = (req, res) => {
+  const username = req.params.username;
+  User.findOne({
+    username
+  }).exec((err, user) => {
+    if (err || !user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    if (user.photo.data) {
+      res.set('Content-Type', user.photo.contentType);
+      return res.send(user.photo.data);
+    }
   });
 };
