@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const formidable = require('formidable');
+const _ = require('lodash');
 const fs = require('fs');
 
 exports.read = (req, res) => {
@@ -57,6 +58,7 @@ exports.updateUser = (req, res) => {
       });
     }
     let user = req.profile;
+    console.log('before merge: ');
     user = _.extend(user, fields);
 
     if (files.photo) {
@@ -67,18 +69,18 @@ exports.updateUser = (req, res) => {
       }
       user.photo.data = fs.readFileSync(files.photo.path);
       user.photo.contentType = files.photo.type;
-
-      user.save((err, result) => {
-        if (err) {
-          return res.status(400).json({
-            error: errorHandler(err)
-          });
-        }
-        const { hashedPassword, salt, photo, ...safeUser } = user;
-
-        return res.json(safeUser);
-      });
     }
+
+    user.save((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: errorHandler(err)
+        });
+      }
+      const { hashedPassword, salt, photo, ...safeUser } = user;
+
+      return res.json(safeUser);
+    });
   });
 };
 

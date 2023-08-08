@@ -9,7 +9,7 @@ router.get(
   userController.read
 );
 router.put(
-  '/:username',
+  '/profile',
   authController.requireSignin,
   authController.authMiddleware,
   userController.updateUser
