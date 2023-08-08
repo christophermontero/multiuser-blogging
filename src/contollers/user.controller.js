@@ -51,6 +51,7 @@ exports.publicProfile = (req, res) => {
 
 exports.updateUser = (req, res) => {
   let formData = new formidable.IncomingForm();
+  formData.keepExtensions = true;
   formData.parse(req, (err, fields, files) => {
     if (err) {
       return res.status(400).json({
