@@ -13,7 +13,6 @@ exports.read = (req, res) => {
 
 exports.publicProfile = (req, res) => {
   const username = req.params.username;
-  console.log('username', username);
   User.findOne({
     username
   }).exec((err, user) => {
