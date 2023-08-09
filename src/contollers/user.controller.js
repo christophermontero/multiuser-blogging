@@ -72,7 +72,7 @@ exports.updateUser = (req, res) => {
           error: 'Image should be less than 1mb in size'
         });
       }
-      user.photo.data = fs.readFileSync(files.photo.path);
+      user.photo.binData = fs.readFileSync(files.photo.filepath);
       user.photo.contentType = files.photo.type;
     }
 
@@ -100,9 +100,9 @@ exports.userProfilePicture = (req, res) => {
       });
     }
 
-    if (user.photo.data) {
+    if (user.photo.binData) {
       res.set('Content-Type', user.photo.contentType);
-      return res.send(user.photo.data);
+      return res.send(user.photo.binData);
     }
   });
 };
