@@ -59,7 +59,6 @@ exports.updateUser = (req, res) => {
       });
     }
     let user = req.profile;
-    console.log('before merge: ');
     user = _.extend(user, fields);
 
     if (fields.password && fields.password.length < 6) {
