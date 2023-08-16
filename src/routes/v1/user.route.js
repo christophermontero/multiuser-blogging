@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { authController, userController } = require('../../contollers');
+const {
+  authController,
+  userController,
+  blogController
+} = require('../../contollers');
+const { requireSignin } = require('../../contollers/auth.controller');
 
 router.get(
   '/profile',
@@ -16,5 +21,23 @@ router.put(
 );
 router.get('/photo/:username', userController.userProfilePicture);
 router.get('/:username', userController.publicProfile);
+router.post(
+  '/blog',
+  requireSignin,
+  authController.authMiddleware,
+  blogController.create
+);
+router.delete(
+  '/blog/:slug',
+  requireSignin,
+  authController.authMiddleware,
+  blogController.remove
+);
+router.put(
+  '/blog/:slug',
+  requireSignin,
+  authController.authMiddleware,
+  blogController.update
+);
 
 module.exports = router;
