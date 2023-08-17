@@ -8,6 +8,7 @@ const Category = require('../models/Category');
 const Tag = require('../models/Tag');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const _ = require('lodash');
+const User = require('../models/User');
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -336,4 +337,30 @@ exports.listSearch = (req, res) => {
   } else {
     return res.json([]);
   }
+};
+
+exports.blogsByUser = (req, res) => {
+  User.findOne({ username: req.params.username }).exec((err, user) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler(err)
+      });
+    }
+    let userId = user._id;
+
+    Blog.find({ postedBy: userId })
+      .populate('categories', '_id name slug')
+      .populate('tags', '_id name slug')
+      .populate('postedBy', '_id name username')
+      .select('_id title slug postedBy')
+      .exec((err, data) => {
+        if (err) {
+          return res.status(400).json({
+            error: errorHandler(err)
+          });
+        }
+
+        return res.json(data);
+      });
+  });
 };

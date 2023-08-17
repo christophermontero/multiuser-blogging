@@ -2,6 +2,8 @@ const shortid = require('shortid');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { expressjwt } = require('express-jwt');
+const Blog = require('../models/Blog');
+const { errorHandler } = require('../helpers/dbErrorHandler');
 
 require('dotenv').config();
 
@@ -103,6 +105,26 @@ exports.adminMiddleware = (req, res, next) => {
       });
     }
     req.profile = user;
+    next();
+  });
+};
+
+exports.canUpdateOrDeleteBlog = (req, res, next) => {
+  const slug = req.params.slug.toLowerCase();
+  Blog.findOne({ slug }).exec((err, blog) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler(err)
+      });
+    }
+    let isAuthorized =
+      blog.postedBy._id.toString() === req.profile._id.toString();
+
+    if (!isAuthorized) {
+      return res.status(400).json({
+        error: 'You are not authorized!'
+      });
+    }
     next();
   });
 };

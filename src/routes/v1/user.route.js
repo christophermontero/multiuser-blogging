@@ -31,12 +31,14 @@ router.delete(
   '/blog/:slug',
   requireSignin,
   authController.authMiddleware,
+  authController.canUpdateOrDeleteBlog,
   blogController.remove
 );
 router.put(
   '/blog/:slug',
   requireSignin,
   authController.authMiddleware,
+  authController.canUpdateOrDeleteBlog,
   blogController.update
 );
 
