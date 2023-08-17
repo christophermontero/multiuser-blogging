@@ -26,6 +26,6 @@ router.delete(
   authController.adminMiddleware,
   blogController.remove
 );
-router.get('/:username/blogs', blogsByUser);
+router.get('/:username/blogs', blogController.blogsByUser);
 
 module.exports = router;
