@@ -232,12 +232,12 @@ exports.update = (req, res) => {
         return res.status(400).json({
           error: 'Image should be less than 1Mb'
         });
+      } else if (files.photo) {
+        oldBlog.photo = {
+          binData: fs.readFileSync(files.photo.filepath),
+          contentType: files.photo.mimetype
+        };
       }
-
-      oldBlog.photo = {
-        binData: fs.readFileSync(files.photo.filepath),
-        contentType: files.photo.mimetype
-      };
 
       oldBlog.save((err, blog) => {
         if (err)
