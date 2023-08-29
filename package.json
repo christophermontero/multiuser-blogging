@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/christophermontero/multiuser-blogging-back#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "body-parser": "^1.20.0",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.6",

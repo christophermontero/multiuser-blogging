@@ -4,6 +4,7 @@ const blog = require('./blog.route');
 const user = require('./user.route');
 const category = require('./category.route');
 const tag = require('./tag.route');
+const contact = require('./contact.route');
 const router = express.Router();
 
 const defaultRoutes = [
@@ -26,6 +27,10 @@ const defaultRoutes = [
   {
     path: '/tag',
     handle: tag
+  },
+  {
+    path: '/contact',
+    handle: contact
   }
 ];
 
