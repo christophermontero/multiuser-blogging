@@ -10,4 +10,10 @@ router.post(
   runValidation,
   contactController.sendEmail
 );
+router.post(
+  '/author',
+  contactFormValidator,
+  runValidation,
+  contactController.sendEmailToAuthor
+);
 module.exports = router;

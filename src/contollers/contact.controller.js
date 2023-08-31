@@ -1,27 +1,45 @@
-const mailProvider = require('@sendgrid/mail');
-mailProvider.setApiKey(process.env.SENDGRID_API_KEY);
+const { sendEmailWithNodemailer } = require('../helpers/email');
 
 exports.sendEmail = (req, res) => {
+  console.log(req.body);
   const { name, email, message } = req.body;
+
   const emailPayload = {
-    to: email,
-    from: { email: process.env.SENDER },
-    subject: `Contact form - ${process.env.APP_NAME}`,
-    text: `Email received from contract form \n Sender name: ${name} \n Sender email: ${email} \n Sender message: ${message}`,
+    from: email,
+    to: process.env.EMAIL_VERIFIED,
+    subject: 'Website Contact Form',
+    text: `Email received from contact from \n Sender name: ${name} \n Sender email: ${email} \n Sender message: ${message}`,
     html: `
-    <h4>Email received from contact form:</h4>
-    <p>Sender name: ${name}</p>
-    <p>Sender email: ${email}</p>
-    <p>Sender message: ${email}</p>
-    <hr />
-    <p>This email may contain sensitive information</p>
-    <p>https://multiuserblog.com</p>
+        <h4>Email received from contact form:</h4>
+        <p>Sender name: ${name}</p>
+        <p>Sender email: ${email}</p>
+        <p>Sender message: ${message}</p>
+        <hr />
+        <p>This email may contain sensitive information</p>
+        <p>https://multiuserblogging.com</p>
     `
   };
 
-  mailProvider.send(emailPayload).then((sent) => {
-    return res.json({
-      success: true
-    });
-  });
+  sendEmailWithNodemailer(req, res, emailPayload);
+};
+
+exports.sendEmailToAuthor = (req, res) => {
+  const { email, authorEmail, message } = req.body;
+  let mailist = [authorEmail, process.env.SENDER];
+  const emailPayload = {
+    to: mailist,
+    from: { email: process.env.SENDER },
+    subject: `Someone messaged you from - ${process.env.APP_NAME}`,
+    text: `Email received from contract form \n Email: ${email} \n Message: ${message}`,
+    html: `
+    <h4>Message received from:</h4>
+    <p>Email: ${email}</p>
+    <p>Message: ${message}</p>
+    <hr />
+    <p>This email may contain sensitive information</p>
+    <p>https://multiuserblogging.com</p>
+    `
+  };
+
+  sendEmailWithNodemailer(req, res, emailPayload);
 };
