@@ -1,7 +1,6 @@
 const { sendEmailWithNodemailer } = require('../helpers/email');
 
 exports.sendEmail = (req, res) => {
-  console.log(req.body);
   const { name, email, message } = req.body;
 
   const emailPayload = {
