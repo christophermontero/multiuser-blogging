@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { expressjwt } = require('express-jwt');
 const Blog = require('../models/Blog');
 const { errorHandler } = require('../helpers/dbErrorHandler');
+const { buildHtmlForResetPasswordEmail } = require('../templates/email');
+const { sendEmailWithNodemailer } = require('../helpers/email');
 
 require('dotenv').config();
 
@@ -128,3 +130,42 @@ exports.canUpdateOrDeleteBlog = (req, res, next) => {
     next();
   });
 };
+
+exports.forgotPassword = (req, res) => {
+  const { email } = req.body;
+
+  User.findOne({ email }, (err, user) => {
+    if (err || !user) {
+      return res.status(401).json({
+        error: 'User with that email does not exits'
+      });
+    }
+
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_RESET_PASSWORD, {
+      expiresIn: '10m'
+    });
+
+    const emailPayload = {
+      from: process.env.EMAIL_VERIFIED,
+      to: email,
+      subject: 'Password reset link',
+      html: buildHtmlForResetPasswordEmail(token)
+    };
+
+    return User.updateOne(
+      {
+        resetPasswordLink: token
+      },
+      (err, success) => {
+        if (err) {
+          return res.json({ error: errorHandler(err) });
+        } else {
+          const msg = `Email has been sent to ${email}. Follow the instructions to reset your password. Link expires in 10 min`;
+          sendEmailWithNodemailer(req, res, emailPayload, msg);
+        }
+      }
+    );
+  });
+};
+
+exports.resetPassword = (req, res) => {};

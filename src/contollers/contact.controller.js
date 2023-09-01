@@ -1,5 +1,5 @@
 const { sendEmailWithNodemailer } = require('../helpers/email');
-const { buildHtmlForEmail } = require('../templates/email');
+const { buildHtmlForContactFormEmail } = require('../templates/email');
 
 exports.sendEmail = (req, res) => {
   const { name, email, message } = req.body;
@@ -9,7 +9,7 @@ exports.sendEmail = (req, res) => {
     to: process.env.EMAIL_VERIFIED,
     subject: 'Website Contact Form',
     text: `Email received from contact form \n Sender name: ${name} \n Sender email: ${email} \n Sender message: ${message}`,
-    html: buildHtmlForEmail(email, name, message)
+    html: buildHtmlForContactFormEmail(email, name, message)
   };
 
   sendEmailWithNodemailer(req, res, emailPayload);
@@ -23,7 +23,7 @@ exports.sendEmailToAuthor = (req, res) => {
     from: { email },
     subject: `Someone messaged you from - ${process.env.APP_NAME}`,
     text: `Email received from  \n Email: ${process.env.EMAIL_VERIFIED} \n Message: ${message}`,
-    html: buildHtmlForEmail(email, name, message)
+    html: buildHtmlForContactFormEmail(email, name, message)
   };
 
   sendEmailWithNodemailer(req, res, emailPayload);

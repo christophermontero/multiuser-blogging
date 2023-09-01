@@ -4,7 +4,9 @@ const { authController } = require('../../contollers');
 const { runValidation } = require('../../validators');
 const {
   userSignupValidator,
-  userSinginValidator
+  userSinginValidator,
+  forgotPasswordValidator,
+  resetPasswordValidator
 } = require('../../validators/auth.validator');
 
 router.post(
@@ -20,6 +22,17 @@ router.post(
   authController.signin
 );
 router.get('/signout', authController.requireSignin, authController.signout);
-//router.get('/secret', authController.requireSignin, authController.secret);
+router.put(
+  '/forgot-password',
+  forgotPasswordValidator,
+  runValidation,
+  authController.forgotPassword
+);
+router.put(
+  '/reset-password',
+  resetPasswordValidator,
+  runValidation,
+  authController.resetPassword
+);
 
 module.exports = router;

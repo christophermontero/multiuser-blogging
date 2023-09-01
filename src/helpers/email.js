@@ -1,6 +1,6 @@
 const nodeMailer = require('nodemailer');
 
-exports.sendEmailWithNodemailer = (req, res, emailData) => {
+exports.sendEmailWithNodemailer = (req, res, emailData, msg = undefined) => {
   const transporter = nodeMailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: 587,
@@ -19,7 +19,7 @@ exports.sendEmailWithNodemailer = (req, res, emailData) => {
     .sendMail(emailData)
     .then((info) => {
       return res.json({
-        success: true
+        ...(msg ? { message: msg } : { success: true })
       });
     })
     .catch((err) => console.log(`Problem sending email: ${err}`));
