@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const shortid = require('shortid');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
@@ -168,4 +169,45 @@ exports.forgotPassword = (req, res) => {
   });
 };
 
-exports.resetPassword = (req, res) => {};
+exports.resetPassword = (req, res) => {
+  const { resetPasswordLink, newPassword } = req.body;
+
+  if (resetPasswordLink) {
+    jwt.verify(
+      resetPasswordLink,
+      process.env.JWT_RESET_PASSWORD,
+      function (err, decoded) {
+        if (err) {
+          return res.status(401).json({
+            error: 'Expired link. Try again'
+          });
+        }
+
+        User.findOne({ resetPasswordLink }, (err, user) => {
+          if (err || !user) {
+            return res.status(401).json({
+              error: 'Something went wrong. Try later'
+            });
+          }
+
+          const updateFields = {
+            password: newPassword,
+            resetPasswordLink: ''
+          };
+
+          user = _.extend(user, updateFields);
+          user.save((err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: errorHandler(err)
+              });
+            }
+            return res.json({
+              message: 'Great! Now you can login with your new password'
+            });
+          });
+        });
+      }
+    );
+  }
+};

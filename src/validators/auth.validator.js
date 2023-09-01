@@ -24,10 +24,10 @@ exports.forgotPasswordValidator = [
 ];
 
 exports.resetPasswordValidator = [
+  check('resetPasswordLink').not().isEmpty(),
   check('newPassword')
     .not()
     .isEmpty()
-    .isEmail()
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
 ];
