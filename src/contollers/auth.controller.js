@@ -224,23 +224,23 @@ exports.preSignup = (req, res) => {
         error: 'Email is taken'
       });
     }
+
+    const token = jwt.sign(
+      { name, email, password },
+      process.env.JWT_ACCOUNT_ACTIVATION,
+      {
+        expiresIn: '10m'
+      }
+    );
+
+    const emailPayload = {
+      from: process.env.EMAIL_VERIFIED,
+      to: email,
+      subject: 'Account activation link',
+      html: buildHtmlForActivateAccountEmail(token)
+    };
+
+    const msg = `Email has been sent to ${email}. Follow the instructions to activate your account.`;
+    return sendEmailWithNodemailer(req, res, emailPayload, msg);
   });
-
-  const token = jwt.sign(
-    { name, email, password },
-    process.env.JWT_ACCOUNT_ACTIVATION,
-    {
-      expiresIn: '10m'
-    }
-  );
-
-  const emailPayload = {
-    from: process.env.EMAIL_VERIFIED,
-    to: email,
-    subject: 'Account activation link',
-    html: buildHtmlForActivateAccountEmail(token)
-  };
-
-  const msg = `Email has been sent to ${email}. Follow the instructions to activate your account.`;
-  return sendEmailWithNodemailer(req, res, emailPayload, msg);
 };
