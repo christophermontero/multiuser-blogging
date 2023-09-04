@@ -34,5 +34,11 @@ router.put(
   runValidation,
   authController.resetPassword
 );
+router.post(
+  '/pre-signup',
+  userSignupValidator,
+  runValidation,
+  authController.preSignup
+);
 
 module.exports = router;

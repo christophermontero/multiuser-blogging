@@ -5,7 +5,10 @@ const jwt = require('jsonwebtoken');
 const { expressjwt } = require('express-jwt');
 const Blog = require('../models/Blog');
 const { errorHandler } = require('../helpers/dbErrorHandler');
-const { buildHtmlForResetPasswordEmail } = require('../templates/email');
+const {
+  buildHtmlForResetPasswordEmail,
+  buildHtmlForActivateAccountEmail
+} = require('../templates/email');
 const { sendEmailWithNodemailer } = require('../helpers/email');
 
 require('dotenv').config();
@@ -162,7 +165,7 @@ exports.forgotPassword = (req, res) => {
           return res.json({ error: errorHandler(err) });
         } else {
           const msg = `Email has been sent to ${email}. Follow the instructions to reset your password. Link expires in 10 min`;
-          sendEmailWithNodemailer(req, res, emailPayload, msg);
+          return sendEmailWithNodemailer(req, res, emailPayload, msg);
         }
       }
     );
@@ -210,4 +213,34 @@ exports.resetPassword = (req, res) => {
       }
     );
   }
+};
+
+exports.preSignup = (req, res) => {
+  const { name, email, password } = req.body;
+
+  User.findOne({ email: email.toLowerCase() }, (err, user) => {
+    if (user) {
+      return res.status(400).json({
+        error: 'Email is taken'
+      });
+    }
+  });
+
+  const token = jwt.sign(
+    { name, email, password },
+    process.env.JWT_ACCOUNT_ACTIVATION,
+    {
+      expiresIn: '10m'
+    }
+  );
+
+  const emailPayload = {
+    from: process.env.EMAIL_VERIFIED,
+    to: email,
+    subject: 'Account activation link',
+    html: buildHtmlForActivateAccountEmail(token)
+  };
+
+  const msg = `Email has been sent to ${email}. Follow the instructions to activate your account.`;
+  return sendEmailWithNodemailer(req, res, emailPayload, msg);
 };

@@ -12,7 +12,7 @@ exports.sendEmail = (req, res) => {
     html: buildHtmlForContactFormEmail(email, name, message)
   };
 
-  sendEmailWithNodemailer(req, res, emailPayload);
+  return sendEmailWithNodemailer(req, res, emailPayload);
 };
 
 exports.sendEmailToAuthor = (req, res) => {
@@ -26,5 +26,5 @@ exports.sendEmailToAuthor = (req, res) => {
     html: buildHtmlForContactFormEmail(email, name, message)
   };
 
-  sendEmailWithNodemailer(req, res, emailPayload);
+  return sendEmailWithNodemailer(req, res, emailPayload);
 };
