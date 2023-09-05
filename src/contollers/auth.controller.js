@@ -14,31 +14,40 @@ const { sendEmailWithNodemailer } = require('../helpers/email');
 require('dotenv').config();
 
 exports.signup = (req, res) => {
-  User.findOne({ email: req.body.email }).exec((err, user) => {
-    if (err || user) {
-      return res.status(400).json({ error: 'This email is already taken' });
-    }
-    const { name, email, password } = req.body;
-    let username = shortid.generate();
-    let profile = `${process.env.CLIENT_URL}/profile/${username}`;
-    let newUser = new User({
-      name,
-      email,
-      password,
-      profile,
-      username
-    });
-    newUser.save((err, success) => {
-      if (err) {
-        return res.status(400).json({
-          error: err
+  const token = req.body.token;
+  if (token) {
+    jwt.verify(
+      token,
+      process.env.JWT_ACCOUNT_ACTIVATION,
+      function (err, decoded) {
+        if (err) {
+          return res.status(401).json({
+            error: 'Expired link. Signup again'
+          });
+        }
+
+        const { name, email, password } = jwt.decode(token);
+        let username = shortid.generate();
+        let profile = `${process.env.CLIENT_URL}/profile/${username}`;
+        const user = new User({ name, email, password, profile, username });
+        user.save((err, user) => {
+          if (err) {
+            return res.status(400).json({
+              error: errorHandler(err)
+            });
+          }
+
+          return res.json({
+            message: 'Signup success! Please signin'
+          });
         });
       }
-      res.json({
-        message: 'Signup success'
-      });
+    );
+  } else {
+    return res.status(500).json({
+      message: 'Something went wrong. Try again'
     });
-  });
+  }
 };
 
 exports.signin = (req, res) => {

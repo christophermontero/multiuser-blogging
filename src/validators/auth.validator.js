@@ -1,6 +1,10 @@
 const { check } = require('express-validator');
 
 exports.userSignupValidator = [
+  check('token').not().isEmpty().withMessage('Token is required')
+];
+
+exports.userPreSignupValidator = [
   check('name').not().isEmpty().withMessage('Name is required'),
   check('email').isEmail().withMessage('Must be a valid email address'),
   check('password')

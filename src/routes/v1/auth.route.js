@@ -3,10 +3,11 @@ const router = express.Router();
 const { authController } = require('../../contollers');
 const { runValidation } = require('../../validators');
 const {
-  userSignupValidator,
+  userPreSignupValidator,
   userSinginValidator,
   forgotPasswordValidator,
-  resetPasswordValidator
+  resetPasswordValidator,
+  userSignupValidator
 } = require('../../validators/auth.validator');
 
 router.post(
@@ -36,7 +37,7 @@ router.put(
 );
 router.post(
   '/pre-signup',
-  userSignupValidator,
+  userPreSignupValidator,
   runValidation,
   authController.preSignup
 );
